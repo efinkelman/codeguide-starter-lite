@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CodeBlock } from '@/components/ui/code-block'
 import { generateCodeSamples } from '../../utils/code-samples'
 import { RefreshCw } from 'lucide-react'
@@ -19,7 +19,6 @@ export function ApiEndpointDetails({
   endpoint, 
   token, 
   isAuthenticated,
-  methodColors 
 }: ApiEndpointDetailsProps) {
   const [codeLanguage, setCodeLanguage] = React.useState<'curl' | 'javascript' | 'python'>('curl')
   
@@ -88,7 +87,7 @@ export function ApiEndpointDetails({
       
       <div className="space-y-2">
         <h3 className="font-medium text-base">Code Examples</h3>
-        <Tabs defaultValue="curl" className="w-full" onValueChange={(value) => setCodeLanguage(value as any)}>
+        <Tabs defaultValue="curl" className="w-full" onValueChange={(value) => setCodeLanguage(value as 'curl' | 'javascript' | 'python')}>
           <TabsList className="bg-secondary/50 border border-border">
             <TabsTrigger value="curl" className="text-xs data-[state=active]:bg-background">
               cURL
