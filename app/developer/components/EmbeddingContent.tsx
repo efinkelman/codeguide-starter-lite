@@ -8,6 +8,7 @@ import { useDeveloperContext } from '../utils/context-providers'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle, CheckCircle2, Lock, KeyRound } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { CodeBlock } from '@/components/ui/code-block'
 
 // Define the actual dashboard URL for the iframe
 const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3000/embed/dashboard';
@@ -257,35 +258,41 @@ export function EmbeddingContent() {
               <p className="text-sm text-muted-foreground">
                 Add the Vanguard Parking embed script to your HTML page:
               </p>
-              <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2 text-sm">
-                <code>{`<script src="${dashboardUrl}/embed/vanguard-embed.js"></script>`}</code>
-              </pre>
+              <CodeBlock 
+                code={`<script src="${dashboardUrl}/embed/vanguard-embed.js"></script>`}
+                language="html"
+                className="mt-2"
+              />
             </li>
             <li>
               <span className="font-medium">Create a container element</span>
               <p className="text-sm text-muted-foreground">
                 Add a div element where the dashboard will be rendered:
               </p>
-              <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2 text-sm">
-                <code>{`<div id="vanguard-dashboard" style="width: 100%; height: 800px;"></div>`}</code>
-              </pre>
+              <CodeBlock 
+                code={`<div id="vanguard-dashboard" style="width: 100%; height: 800px;"></div>`}
+                language="html"
+                className="mt-2"
+              />
             </li>
             <li>
               <span className="font-medium">Initialize the dashboard</span>
               <p className="text-sm text-muted-foreground">
                 Initialize the dashboard with your access token:
               </p>
-              <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2 text-sm">
-                <code>{`<script>
-  document.addEventListener(&apos;DOMContentLoaded&apos;, function() {
+              <CodeBlock 
+                code={`<script>
+  document.addEventListener('DOMContentLoaded', function() {
     VanguardEmbed.init({
-      container: &apos;vanguard-dashboard&apos;,
-      accessToken: &apos;${token || 'YOUR_API_TOKEN'}&apos;,  // Use your authentication token here
-      baseUrl: &apos;${dashboardUrl}&apos;
+      container: 'vanguard-dashboard',
+      accessToken: '${token || 'YOUR_API_TOKEN'}',  // Use your authentication token here
+      baseUrl: '${dashboardUrl}'
     });
   });
-</script>`}</code>
-              </pre>
+</script>`}
+                language="html"
+                className="mt-2"
+              />
             </li>
           </ol>
         </CardContent>

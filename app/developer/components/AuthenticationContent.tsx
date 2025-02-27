@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { SectionHeader } from './SectionHeader'
 import { useDeveloperContext } from '../utils/context-providers'
+import { CodeBlock } from '@/components/ui/code-block'
 
 export function AuthenticationContent() {
   const { isAuthenticated, setIsAuthModalOpen, token } = useDeveloperContext()
@@ -58,30 +59,32 @@ export function AuthenticationContent() {
             To generate an authentication token, make a POST request to the login endpoint with your credentials:
           </p>
 
-          <div className="rounded-md bg-black p-4 mt-4">
-            <pre className="overflow-x-auto text-sm text-white">
-              <code>{curlCode}</code>
-            </pre>
-          </div>
+          <CodeBlock 
+            code={curlCode} 
+            language="bash"
+            className="mt-4"
+          />
 
           <h3 className="text-lg font-medium mt-6">Response</h3>
           <p className="text-sm text-muted-foreground">
             Upon successful authentication, you will receive a response with your access token:
           </p>
 
-          <div className="rounded-md bg-black p-4 mt-4">
-            <pre className="overflow-x-auto text-sm text-white">
-              <code>{responseExample}</code>
-            </pre>
-          </div>
+          <CodeBlock 
+            code={responseExample} 
+            language="json"
+            className="mt-4"
+          />
 
           <div className="mt-6">
             <p className="text-sm">
               Include this token in the Authorization header for all subsequent API requests:
             </p>
-            <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2">
-              <code className="text-sm">Authorization: Bearer {token || "YOUR_ACCESS_TOKEN"}</code>
-            </pre>
+            <CodeBlock 
+              code={`Authorization: Bearer ${token || "YOUR_ACCESS_TOKEN"}`}
+              language="http"
+              className="mt-2"
+            />
           </div>
         </CardContent>
       </Card>
