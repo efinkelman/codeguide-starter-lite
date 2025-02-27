@@ -11,9 +11,15 @@ import { ApiReferenceContent } from './components/ApiReferenceContent'
 import { WebhooksContent } from './components/WebhooksContent'
 import { LoginDialog } from './components/LoginDialog'
 import { useSidebar } from './utils/context-providers'
+import { isApiReferenceEnabled } from './utils/feature-flags'
 
 export default function DeveloperPortalPage() {
   const { activeTab } = useSidebar()
+  const [apiReferenceEnabled, setApiReferenceEnabled] = React.useState(false)
+  
+  React.useEffect(() => {
+    setApiReferenceEnabled(isApiReferenceEnabled())
+  }, [])
   
   return (
     <div className="flex min-h-screen flex-col sm:flex-row" data-developer-portal="true">
@@ -32,7 +38,20 @@ export default function DeveloperPortalPage() {
               <EmbeddingContent />
             </TabsContent>
             <TabsContent value="3" className="mt-0">
-              <ApiReferenceContent />
+              {apiReferenceEnabled ? (
+                <ApiReferenceContent />
+              ) : (
+                <div className="rounded-md bg-yellow-50 p-4 my-6">
+                  <div className="flex">
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-yellow-800">API Reference is not available</h3>
+                      <div className="mt-2 text-sm text-yellow-700">
+                        <p>The API Reference is currently disabled in production. It is only available in development environments.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </TabsContent>
             <TabsContent value="4" className="mt-0">
               <WebhooksContent />

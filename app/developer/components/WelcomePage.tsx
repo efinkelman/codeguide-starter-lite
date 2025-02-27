@@ -6,10 +6,18 @@ import { Button } from '@/components/ui/button'
 import { SectionHeader } from './SectionHeader'
 import { useDeveloperContext, useSidebar } from '../utils/context-providers'
 import { Lock, PanelLeft, Code, Webhook } from 'lucide-react'
+import { isApiReferenceEnabled } from '../utils/feature-flags'
 
 export function WelcomePage() {
   const { isAuthenticated, setIsAuthModalOpen } = useDeveloperContext()
   const { setActiveTab } = useSidebar()
+  
+  // Check if API Reference should be enabled using our utility function
+  const [apiReferenceEnabled, setApiReferenceEnabled] = React.useState(false)
+  
+  React.useEffect(() => {
+    setApiReferenceEnabled(isApiReferenceEnabled())
+  }, [])
 
   const handleLogin = () => {
     setIsAuthModalOpen(true)
@@ -38,7 +46,7 @@ export function WelcomePage() {
       icon: <Code className="h-10 w-10 text-primary" />,
       buttonText: 'View Reference',
       tabIndex: 3,
-      disabled: true,
+      disabled: !apiReferenceEnabled,
     },
     {
       title: 'Webhooks',

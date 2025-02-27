@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 
 import { useSidebar, useDeveloperContext } from '../utils/context-providers'
+import { isApiReferenceEnabled } from '../utils/feature-flags'
 
 const sidebarVariants = {
   hidden: { x: '-100%', opacity: 0 },
@@ -31,7 +32,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, isActive, onClick, disab
     className={`flex w-full items-center space-x-2 px-4 py-3 text-left text-sm transition-colors
       ${isActive ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}
       ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-    onClick={onClick}
+    onClick={disabled ? undefined : onClick}
     disabled={disabled}
   >
     <span className="flex h-5 w-5 items-center justify-center">
@@ -48,6 +49,13 @@ export function DeveloperSidebar() {
   const { sidebarOpen, setSidebarOpen, activeTab, setActiveTab } = useSidebar()
   const { isAuthenticated, token, copyToken, copySuccess, handleLogout } = useDeveloperContext()
   const sidebarRef = React.useRef<HTMLDivElement>(null)
+  
+  // Check if API Reference should be enabled using our utility function
+  const [apiReferenceEnabled, setApiReferenceEnabled] = React.useState(false)
+  
+  React.useEffect(() => {
+    setApiReferenceEnabled(isApiReferenceEnabled())
+  }, [])
 
   // Handle clicks outside the sidebar to close it on mobile
   React.useEffect(() => {
@@ -76,7 +84,9 @@ export function DeveloperSidebar() {
     { 
       icon: <Code className="h-4 w-4" />, 
       label: 'API Reference', 
-      tabIndex: 3
+      tabIndex: 3,
+      disabled: !apiReferenceEnabled,
+      badge: !apiReferenceEnabled ? <ComingSoonBadge /> : undefined
     },
     { 
       icon: <Webhook className="h-4 w-4" />, 
