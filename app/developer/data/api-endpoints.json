@@ -111,6 +111,16 @@
       "tag": "Users"
     },
     {
+      "path": "/api/users/update-password/{resetHash}",
+      "method": "POST",
+      "operationId": "UsersController_updatePassword",
+      "description": "Update a user's password using reset hash",
+      "parameters": [{ "name": "resetHash", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdatePasswordDto" } },
+      "responses": { "200": { "description": "Password updated successfully" } },
+      "tag": "Users"
+    },
+    {
       "path": "/auth/login",
       "method": "POST",
       "operationId": "AuthController_login",
@@ -119,6 +129,612 @@
       "requestBody": { "schema": { "$ref": "#/components/schemas/LoginDto" } },
       "responses": { "200": { "description": "Returns access token" } },
       "tag": "Auth"
+    },
+    {
+      "path": "/api/parkwhiz-user",
+      "method": "GET",
+      "operationId": "ParkwhizUserController_findAll",
+      "description": "Get all Parkwhiz users",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/ParkwhizUser" } } } },
+      "tag": "Parkwhiz User"
+    },
+    {
+      "path": "/api/parkwhiz-user",
+      "method": "POST",
+      "operationId": "ParkwhizUserController_create",
+      "description": "Create a new Parkwhiz user",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateParkwhizUserDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/ParkwhizUser" } } },
+      "tag": "Parkwhiz User"
+    },
+    {
+      "path": "/api/parkwhiz-user/{id}",
+      "method": "GET",
+      "operationId": "ParkwhizUserController_findOne",
+      "description": "Get a Parkwhiz user by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/ParkwhizUser" } } },
+      "tag": "Parkwhiz User"
+    },
+    {
+      "path": "/api/parkwhiz-user/{id}",
+      "method": "PATCH",
+      "operationId": "ParkwhizUserController_update",
+      "description": "Update a Parkwhiz user",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateParkwhizUserDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/ParkwhizUser" } } },
+      "tag": "Parkwhiz User"
+    },
+    {
+      "path": "/api/unenforceable-dates",
+      "method": "POST",
+      "operationId": "UnenforceableDatesController_create",
+      "description": "Create a new unenforceable date",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateUnenforceableDateDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/UnenforceableDate" } } },
+      "tag": "UnenforceableDates"
+    },
+    {
+      "path": "/api/unenforceable-dates",
+      "method": "GET",
+      "operationId": "UnenforceableDatesController_findAll",
+      "description": "Get all unenforceable dates",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/UnenforceableDate" } } } },
+      "tag": "UnenforceableDates"
+    },
+    {
+      "path": "/api/unenforceable-dates/{id}",
+      "method": "GET",
+      "operationId": "UnenforceableDatesController_findOne",
+      "description": "Get an unenforceable date by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/UnenforceableDate" } } },
+      "tag": "UnenforceableDates"
+    },
+    {
+      "path": "/api/unenforceable-dates/{id}",
+      "method": "PATCH",
+      "operationId": "UnenforceableDatesController_update",
+      "description": "Update an unenforceable date",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateUnenforceableDateDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/UnenforceableDate" } } },
+      "tag": "UnenforceableDates"
+    },
+    {
+      "path": "/api/unenforceable-dates/{id}",
+      "method": "DELETE",
+      "operationId": "UnenforceableDatesController_remove",
+      "description": "Delete an unenforceable date",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Unenforceable date deleted successfully" } },
+      "tag": "UnenforceableDates"
+    },
+    {
+      "path": "/api/permits",
+      "method": "POST",
+      "operationId": "PermitsController_create",
+      "description": "Create a new permit",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreatePermitDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/Permit" } } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/permits",
+      "method": "GET",
+      "operationId": "PermitsController_findAll",
+      "description": "Get all permits",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Permit" } } } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/permits/batch",
+      "method": "POST",
+      "operationId": "PermitsController_createBatch",
+      "description": "Create multiple permits in batch",
+      "parameters": [],
+      "requestBody": { "schema": { "items": { "$ref": "#/components/schemas/CreatePermitDto" } } },
+      "responses": { "201": { "schema": { "items": { "$ref": "#/components/schemas/Permit" } } } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/permits/export",
+      "method": "GET",
+      "operationId": "PermitsController_export",
+      "description": "Export permits data",
+      "parameters": [],
+      "responses": { "200": { "description": "Returns permits data for export" } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/permits/{id}",
+      "method": "GET",
+      "operationId": "PermitsController_findOne",
+      "description": "Get a permit by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Permit" } } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/permits/{id}",
+      "method": "PATCH",
+      "operationId": "PermitsController_update",
+      "description": "Update a permit",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdatePermitDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Permit" } } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/permits/{id}",
+      "method": "DELETE",
+      "operationId": "PermitsController_remove",
+      "description": "Delete a permit",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Permit deleted successfully" } },
+      "tag": "Permits"
+    },
+    {
+      "path": "/api/cameras",
+      "method": "POST",
+      "operationId": "CamerasController_create",
+      "description": "Create a new camera",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateCameraDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/Camera" } } },
+      "tag": "Cameras"
+    },
+    {
+      "path": "/api/cameras",
+      "method": "GET",
+      "operationId": "CamerasController_findAll",
+      "description": "Get all cameras",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Camera" } } } },
+      "tag": "Cameras"
+    },
+    {
+      "path": "/api/cameras/{id}",
+      "method": "GET",
+      "operationId": "CamerasController_findOne",
+      "description": "Get a camera by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Camera" } } },
+      "tag": "Cameras"
+    },
+    {
+      "path": "/api/cameras/{id}",
+      "method": "PATCH",
+      "operationId": "CamerasController_update",
+      "description": "Update a camera",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateCameraDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Camera" } } },
+      "tag": "Cameras"
+    },
+    {
+      "path": "/api/cameras/{id}",
+      "method": "DELETE",
+      "operationId": "CamerasController_remove",
+      "description": "Delete a camera",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Camera deleted successfully" } },
+      "tag": "Cameras"
+    },
+    {
+      "path": "/api/cancellation-requests",
+      "method": "GET",
+      "operationId": "CancellationRequestsController_findAll",
+      "description": "Get all cancellation requests",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/CancellationRequest" } } } },
+      "tag": "CancellationRequests"
+    },
+    {
+      "path": "/api/cancellation-requests",
+      "method": "POST",
+      "operationId": "CancellationRequestsController_create",
+      "description": "Create a new cancellation request",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateCancellationRequestDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/CancellationRequest" } } },
+      "tag": "CancellationRequests"
+    },
+    {
+      "path": "/api/cancellation-requests/with-lots",
+      "method": "GET",
+      "operationId": "CancellationRequestsController_findAllWithLots",
+      "description": "Get all cancellation requests with lot information",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/CancellationRequestWithLot" } } } },
+      "tag": "CancellationRequests"
+    },
+    {
+      "path": "/api/cancellation-requests/{id}",
+      "method": "GET",
+      "operationId": "CancellationRequestsController_findOne",
+      "description": "Get a cancellation request by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/CancellationRequest" } } },
+      "tag": "CancellationRequests"
+    },
+    {
+      "path": "/api/cancellation-requests/{id}",
+      "method": "PATCH",
+      "operationId": "CancellationRequestsController_update",
+      "description": "Update a cancellation request",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateCancellationRequestDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/CancellationRequest" } } },
+      "tag": "CancellationRequests"
+    },
+    {
+      "path": "/api/tickets",
+      "method": "GET",
+      "operationId": "TicketController_findAll",
+      "description": "Get all tickets",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Ticket" } } } },
+      "tag": "Ticket"
+    },
+    {
+      "path": "/api/tickets/{id}",
+      "method": "GET",
+      "operationId": "TicketController_findOne",
+      "description": "Get a ticket by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Ticket" } } },
+      "tag": "Ticket"
+    },
+    {
+      "path": "/api/tickets/{id}",
+      "method": "PATCH",
+      "operationId": "TicketController_update",
+      "description": "Update a ticket",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateTicketDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Ticket" } } },
+      "tag": "Ticket"
+    },
+    {
+      "path": "/api/tickets/mark-unpaid/{id}",
+      "method": "PATCH",
+      "operationId": "TicketController_markUnpaid",
+      "description": "Mark a ticket as unpaid",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Ticket" } } },
+      "tag": "Ticket"
+    },
+    {
+      "path": "/api/pay-ticket/session/{id}",
+      "method": "GET",
+      "operationId": "TicketController_getPaymentSession",
+      "description": "Get payment session for a ticket",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Returns payment session information" } },
+      "tag": "Ticket"
+    },
+    {
+      "path": "/api/pay-ticket/{lpn}/{state}",
+      "method": "GET",
+      "operationId": "TicketController_getTicketsByLpnAndState",
+      "description": "Get tickets by license plate number and state",
+      "parameters": [
+        { "name": "lpn", "required": true, "in": "path", "schema": { "type": "string" } },
+        { "name": "state", "required": true, "in": "path", "schema": { "type": "string" } }
+      ],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Ticket" } } } },
+      "tag": "Ticket"
+    },
+    {
+      "path": "/api/ticket-actions/check-submitted/{id}",
+      "method": "POST",
+      "operationId": "TicketActionsController_checkSubmitted",
+      "description": "Mark that a check has been submitted for this ticket, it has been marked paid",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Ticket marked as paid with check" } },
+      "tag": "Ticket Actions"
+    },
+    {
+      "path": "/api/sessions",
+      "method": "GET",
+      "operationId": "SessionController_findAll",
+      "description": "Get all sessions",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Session" } } } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/sessions/view",
+      "method": "GET",
+      "operationId": "SessionController_view",
+      "description": "View session details",
+      "parameters": [],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/SessionView" } } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/sessions/all-tickets",
+      "method": "GET",
+      "operationId": "SessionController_getAllTickets",
+      "description": "Get all tickets associated with sessions",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Ticket" } } } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/sessions/export",
+      "method": "GET",
+      "operationId": "SessionController_export",
+      "description": "Export sessions data",
+      "parameters": [],
+      "responses": { "200": { "description": "Returns sessions data for export" } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/sessions/{id}",
+      "method": "GET",
+      "operationId": "SessionController_findOne",
+      "description": "Get a session by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Session" } } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/sessions/{id}",
+      "method": "PATCH",
+      "operationId": "SessionController_update",
+      "description": "Update a session",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateSessionDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Session" } } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/sessions/{id}",
+      "method": "DELETE",
+      "operationId": "SessionController_remove",
+      "description": "Delete a session",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Session deleted successfully" } },
+      "tag": "Session"
+    },
+    {
+      "path": "/api/captures",
+      "method": "POST",
+      "operationId": "CapturesController_create",
+      "description": "Create a new capture",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateCaptureDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/Capture" } } },
+      "tag": "Captures"
+    },
+    {
+      "path": "/api/captures",
+      "method": "GET",
+      "operationId": "CapturesController_findAll",
+      "description": "Get all captures",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Capture" } } } },
+      "tag": "Captures"
+    },
+    {
+      "path": "/api/captures/{id}",
+      "method": "GET",
+      "operationId": "CapturesController_findOne",
+      "description": "Get a capture by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Capture" } } },
+      "tag": "Captures"
+    },
+    {
+      "path": "/api/captures/{id}",
+      "method": "PATCH",
+      "operationId": "CapturesController_update",
+      "description": "Update a capture",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateCaptureDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Capture" } } },
+      "tag": "Captures"
+    },
+    {
+      "path": "/api/captures/{id}",
+      "method": "DELETE",
+      "operationId": "CapturesController_remove",
+      "description": "Delete a capture",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Capture deleted successfully" } },
+      "tag": "Captures"
+    },
+    {
+      "path": "/api/captures/update-plate/{entryCaptureId}/{exitCaptureId}",
+      "method": "PATCH",
+      "operationId": "CapturesController_updatePlate",
+      "description": "Update plate information for entry and exit captures",
+      "parameters": [
+        { "name": "entryCaptureId", "required": true, "in": "path", "schema": { "type": "string" } },
+        { "name": "exitCaptureId", "required": true, "in": "path", "schema": { "type": "string" } }
+      ],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdatePlateDto" } },
+      "responses": { "200": { "description": "Plate information updated successfully" } },
+      "tag": "Captures"
+    },
+    {
+      "path": "/api/tickets/{ticketId}/notes",
+      "method": "POST",
+      "operationId": "TicketNoteController_create",
+      "description": "Create a new note for a ticket",
+      "parameters": [{ "name": "ticketId", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateTicketNoteDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/TicketNote" } } },
+      "tag": "Ticket Note"
+    },
+    {
+      "path": "/api/tickets/{ticketId}/notes/cancel-pcn",
+      "method": "POST",
+      "operationId": "TicketNoteController_cancelPcn",
+      "description": "Cancel a ticket's PCN with a note",
+      "parameters": [{ "name": "ticketId", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CancelPcnDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/TicketNote" } } },
+      "tag": "Ticket Note"
+    },
+    {
+      "path": "/api/tickets/{ticketId}/notes/{id}",
+      "method": "GET",
+      "operationId": "TicketNoteController_findOne",
+      "description": "Get a specific note for a ticket",
+      "parameters": [
+        { "name": "ticketId", "required": true, "in": "path", "schema": { "type": "string" } },
+        { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+      ],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/TicketNote" } } },
+      "tag": "Ticket Note"
+    },
+    {
+      "path": "/api/tickets/{ticketId}/notes/{id}",
+      "method": "PATCH",
+      "operationId": "TicketNoteController_update",
+      "description": "Update a note for a ticket",
+      "parameters": [
+        { "name": "ticketId", "required": true, "in": "path", "schema": { "type": "string" } },
+        { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+      ],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateTicketNoteDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/TicketNote" } } },
+      "tag": "Ticket Note"
+    },
+    {
+      "path": "/api/payment-integration",
+      "method": "POST",
+      "operationId": "PaymentIntegrationController_create",
+      "description": "Create a new payment integration",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreatePaymentIntegrationDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/PaymentIntegration" } } },
+      "tag": "Payment Integrations"
+    },
+    {
+      "path": "/api/payment-integration",
+      "method": "GET",
+      "operationId": "PaymentIntegrationController_findAll",
+      "description": "Get all payment integrations",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/PaymentIntegration" } } } },
+      "tag": "Payment Integrations"
+    },
+    {
+      "path": "/api/payment-integration/{id}",
+      "method": "GET",
+      "operationId": "PaymentIntegrationController_findOne",
+      "description": "Get a payment integration by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/PaymentIntegration" } } },
+      "tag": "Payment Integrations"
+    },
+    {
+      "path": "/api/payment-integration/{id}",
+      "method": "PATCH",
+      "operationId": "PaymentIntegrationController_update",
+      "description": "Update a payment integration",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdatePaymentIntegrationDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/PaymentIntegration" } } },
+      "tag": "Payment Integrations"
+    },
+    {
+      "path": "/api/payment-integration/{id}",
+      "method": "DELETE",
+      "operationId": "PaymentIntegrationController_remove",
+      "description": "Delete a payment integration",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Payment integration deleted successfully" } },
+      "tag": "Payment Integrations"
+    },
+    {
+      "path": "/api/tenants",
+      "method": "POST",
+      "operationId": "TenantsController_create",
+      "description": "Create a new tenant",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateTenantDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/Tenant" } } },
+      "tag": "Tenants"
+    },
+    {
+      "path": "/api/tenants",
+      "method": "GET",
+      "operationId": "TenantsController_findAll",
+      "description": "Get all tenants",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Tenant" } } } },
+      "tag": "Tenants"
+    },
+    {
+      "path": "/api/tenants/export",
+      "method": "GET",
+      "operationId": "TenantsController_export",
+      "description": "Export tenants data",
+      "parameters": [],
+      "responses": { "200": { "description": "Returns tenants data for export" } },
+      "tag": "Tenants"
+    },
+    {
+      "path": "/api/tenants/{id}",
+      "method": "GET",
+      "operationId": "TenantsController_findOne",
+      "description": "Get a tenant by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Tenant" } } },
+      "tag": "Tenants"
+    },
+    {
+      "path": "/api/tenants/{id}",
+      "method": "PATCH",
+      "operationId": "TenantsController_update",
+      "description": "Update a tenant",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateTenantDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Tenant" } } },
+      "tag": "Tenants"
+    },
+    {
+      "path": "/api/tenants/{id}",
+      "method": "DELETE",
+      "operationId": "TenantsController_remove",
+      "description": "Delete a tenant",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "description": "Tenant deleted successfully" } },
+      "tag": "Tenants"
+    },
+    {
+      "path": "/api/validation-explanations/{id}",
+      "method": "GET",
+      "operationId": "ValidationExplanationController_findOne",
+      "description": "Get session validation explanation by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/ValidationExplanation" } } },
+      "tag": "Session Validation Explanation"
+    },
+    {
+      "path": "/api/dmv/{lpn}/{state}",
+      "method": "PATCH",
+      "operationId": "DmvController_update",
+      "description": "Update DMV records for a license plate in a specific state",
+      "parameters": [
+        { "name": "lpn", "required": true, "in": "path", "schema": { "type": "string" } },
+        { "name": "state", "required": true, "in": "path", "schema": { "type": "string" } }
+      ],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateDmvRecordDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/DmvRecord" } } },
+      "tag": "DMV Records"
     }
   ]
-} 
+}
