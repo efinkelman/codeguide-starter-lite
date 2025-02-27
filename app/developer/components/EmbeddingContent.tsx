@@ -6,8 +6,7 @@ import { SectionHeader } from './SectionHeader'
 import { Button } from '@/components/ui/button'
 import { useDeveloperContext } from '../utils/context-providers'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle2, ExternalLink, Lock, KeyRound, Menu } from 'lucide-react'
-import { Skeleton } from '@/components/ui/skeleton'
+import { AlertCircle, CheckCircle2, Lock, KeyRound } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 // Define the actual dashboard URL for the iframe
@@ -35,8 +34,8 @@ export function EmbeddingContent() {
   }, []);
 
   // Handle iframe error events
-  const handleIframeError = React.useCallback((error: any) => {
-    console.error('Error loading dashboard iframe:', error);
+  const handleIframeError = React.useCallback((event: React.SyntheticEvent<HTMLIFrameElement, Event>) => {
+    console.error('Error loading dashboard iframe:', event);
     setErrorMessage('Failed to load the dashboard iframe');
     setDemoStatus('error');
   }, []);
@@ -171,7 +170,7 @@ export function EmbeddingContent() {
                       <p>{errorMessage || 'Failed to load the dashboard. Please try again later.'}</p>
                       {DASHBOARD_URL.includes('localhost') && (
                         <p className="text-sm">
-                          You're trying to load a dashboard from: <code className="bg-background p-1 rounded">{DASHBOARD_URL}</code>. 
+                          You&apos;re trying to load a dashboard from: <code className="bg-background p-1 rounded">{DASHBOARD_URL}</code>. 
                           Make sure this service is running locally.
                         </p>
                       )}
@@ -240,7 +239,7 @@ export function EmbeddingContent() {
             <AlertTitle>API Token Required</AlertTitle>
             <AlertDescription className="text-sm">
               <p>
-                To embed dashboards, you'll need an API token. To generate a token,
+                To embed dashboards, you&apos;ll need an API token. To generate a token,
                 follow the instructions in the Authentication section of the Developer Portal.
                 {!isAuthenticated && (
                   <Button onClick={handleLogin} size="sm" variant="outline" className="ml-2 gap-1">
@@ -278,11 +277,11 @@ export function EmbeddingContent() {
               </p>
               <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2 text-sm">
                 <code>{`<script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener(&apos;DOMContentLoaded&apos;, function() {
     VanguardEmbed.init({
-      container: 'vanguard-dashboard',
-      accessToken: '${token || 'YOUR_API_TOKEN'}',  // Use your authentication token here
-      baseUrl: '${dashboardUrl}'
+      container: &apos;vanguard-dashboard&apos;,
+      accessToken: &apos;${token || 'YOUR_API_TOKEN'}&apos;,  // Use your authentication token here
+      baseUrl: &apos;${dashboardUrl}&apos;
     });
   });
 </script>`}</code>

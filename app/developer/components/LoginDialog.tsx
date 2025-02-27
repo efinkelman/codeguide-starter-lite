@@ -50,7 +50,7 @@ export function LoginDialog() {
       await handleLogin(data.email, data.password)
       toast.success('Successfully logged in')
       form.reset()
-    } catch (error) {
+    } catch {
       // Error is handled in the context provider
       toast.error('Login failed')
     }

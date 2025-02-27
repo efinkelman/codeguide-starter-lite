@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
-import { useIsMobile } from '@/hooks/use-mobile'
 
 import { DeveloperSidebar } from './components/DeveloperSidebar'
 import { WelcomePage } from './components/WelcomePage'
@@ -14,7 +13,6 @@ import { LoginDialog } from './components/LoginDialog'
 import { useSidebar } from './utils/context-providers'
 
 export default function DeveloperPortalPage() {
-  const isMobile = useIsMobile()
   const { activeTab } = useSidebar()
   
   return (

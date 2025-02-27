@@ -3,13 +3,11 @@
 import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SectionHeader } from './SectionHeader'
 import { useDeveloperContext } from '../utils/context-providers'
 
 export function AuthenticationContent() {
   const { isAuthenticated, setIsAuthModalOpen, token } = useDeveloperContext()
-  const [activeCodeTab, setActiveCodeTab] = React.useState('curl')
 
   const handleLogin = () => {
     setIsAuthModalOpen(true)
@@ -82,7 +80,7 @@ export function AuthenticationContent() {
               Include this token in the Authorization header for all subsequent API requests:
             </p>
             <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2">
-              <code className="text-sm">Authorization: Bearer {token || 'YOUR_ACCESS_TOKEN'}</code>
+              <code className="text-sm">Authorization: Bearer {token || "YOUR_ACCESS_TOKEN"}</code>
             </pre>
           </div>
         </CardContent>
@@ -109,14 +107,14 @@ export function AuthenticationContent() {
               <h4 className="text-base font-medium">403 Forbidden</h4>
               <p className="text-sm text-muted-foreground">
                 This error occurs when the provided token does not have permission to access the requested resource.
-                Check if your developer account has access to the API endpoint you're trying to use.
+                Check if your developer account has access to the API endpoint you&apos;re trying to use.
               </p>
             </div>
 
             <div className="space-y-2">
               <h4 className="text-base font-medium">429 Too Many Requests</h4>
               <p className="text-sm text-muted-foreground">
-                This error occurs when you've exceeded the rate limit for API requests.
+                This error occurs when you&apos;ve exceeded the rate limit for API requests.
                 Implement exponential backoff and retry logic in your application.
               </p>
             </div>

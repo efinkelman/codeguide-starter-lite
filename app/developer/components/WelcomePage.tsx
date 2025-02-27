@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button'
 import { SectionHeader } from './SectionHeader'
 import { useDeveloperContext, useSidebar } from '../utils/context-providers'
-import { BookOpen, Lock, PanelLeft, Code, Webhook } from 'lucide-react'
+import { Lock, PanelLeft, Code, Webhook } from 'lucide-react'
 
 export function WelcomePage() {
   const { isAuthenticated, setIsAuthModalOpen } = useDeveloperContext()
@@ -115,7 +115,7 @@ export function WelcomePage() {
             <div className="space-y-1">
               <h4 className="text-base font-medium">Retrieve your API token</h4>
               <p className="text-sm text-muted-foreground">
-                Your API token is displayed in the sidebar once you're logged in.
+                Your API token is displayed in the sidebar once you&apos;re logged in.
               </p>
             </div>
           </div>
