@@ -1,10 +1,10 @@
 'use client'
 
 import * as React from 'react'
-import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 import { SidebarProvider, DeveloperProvider } from './utils/context-providers'
 import { hideSidebar, createSidebarObserver } from './utils/developer-sidebar-script'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function DeveloperLayout({
   children,
@@ -29,22 +29,18 @@ export default function DeveloperLayout({
   }, [])
 
   return (
-    <ThemeProvider 
-      attribute="class" 
-      defaultTheme="system" 
-      enableSystem 
-      disableTransitionOnChange
-    >
-      <DeveloperProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen flex-col">
-            <main className="flex-1">
-              {children}
-            </main>
+    <DeveloperProvider>
+      <SidebarProvider>
+        <div className="flex min-h-screen flex-col">
+          <div className="fixed top-4 right-4 z-50">
+            <ThemeToggle />
           </div>
-          <Toaster position="top-center" />
-        </SidebarProvider>
-      </DeveloperProvider>
-    </ThemeProvider>
+          <main className="flex-1">
+            {children}
+          </main>
+        </div>
+        <Toaster position="top-center" />
+      </SidebarProvider>
+    </DeveloperProvider>
   )
 } 
