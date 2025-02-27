@@ -11,6 +11,8 @@ import { Separator } from '@/components/ui/separator'
 export function EmbeddingContent() {
   const { isAuthenticated, setIsAuthModalOpen, token } = useDeveloperContext()
   const [activeCodeTab, setActiveCodeTab] = React.useState('react')
+  // Define the dashboard URL from environment variable or fallback to a default
+  const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_EMBED_URL || 'https://embed.vparking.co'
 
   const handleLogin = () => {
     setIsAuthModalOpen(true)
@@ -19,49 +21,31 @@ export function EmbeddingContent() {
   const reactCode = `import React, { useEffect } from 'react';
 
 // Vanguard Parking Dashboard embedding component
-function VanguardDashboard({ dashboardId, apiToken }) {
-  useEffect(() => {
-    // Initialize the dashboard
-    const vp = window.VanguardParking.initialize({
-      container: '#vanguard-dashboard',
-      dashboardId: dashboardId,
-      token: apiToken,
-      theme: 'light', // 'light' or 'dark'
-      height: '600px',
-      width: '100%',
-    });
-
-    // Optional: Listen for events
-    vp.on('ready', () => {
-      console.log('Dashboard is ready');
-    });
-
-    vp.on('error', (error) => {
-      console.error('Dashboard error:', error);
-    });
-
-    // Cleanup on unmount
-    return () => {
-      vp.destroy();
-    };
-  }, [dashboardId, apiToken]);
-
+function VanguardDashboard({ token }) {
+  // The dashboard URL should come from your environment variables
+  // In Next.js, you would access it as: process.env.NEXT_PUBLIC_DASHBOARD_EMBED_URL
+  const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_EMBED_URL || 'https://embed.vparking.co';
+  
   return (
     <div id="vanguard-dashboard" className="vanguard-embed">
-      {/* Dashboard will be rendered here */}
+      <iframe 
+        src={\`\${dashboardUrl}/embed/dashboard?embedded=true&token=\${token}\`}
+        title="Vanguard Parking Dashboard"
+        allowFullScreen
+        style={{ width: '100%', height: '100%', border: 'none' }}
+      />
     </div>
   );
 }
 
 export default function App() {
-  // Your actual dashboard ID and token
-  const dashboardId = 'dashboard_123456';
+  // Your API token from authentication
   const apiToken = '${token || 'YOUR_API_TOKEN'}';
 
   return (
     <div className="app">
       <h1>My Application</h1>
-      <VanguardDashboard dashboardId={dashboardId} apiToken={apiToken} />
+      <VanguardDashboard token={apiToken} />
     </div>
   );
 }`
@@ -70,7 +54,12 @@ export default function App() {
   <div>
     <h1>My Application</h1>
     <div id="vanguard-dashboard" class="vanguard-embed">
-      <!-- Dashboard will be rendered here -->
+      <iframe 
+        :src="embedUrl"
+        title="Vanguard Parking Dashboard"
+        allowfullscreen
+        style="width: 100%; height: 100%; border: none;"
+      />
     </div>
   </div>
 </template>
@@ -79,44 +68,19 @@ export default function App() {
 export default {
   name: 'VanguardDashboard',
   props: {
-    dashboardId: {
+    token: {
       type: String,
       required: true
+    }
+  },
+  computed: {
+    dashboardUrl() {
+      // Get dashboard URL from environment variable in your build setup
+      // In Vite, you would access it as: import.meta.env.VITE_DASHBOARD_URL
+      return process.env.DASHBOARD_URL || 'https://embed.vparking.co';
     },
-    apiToken: {
-      type: String,
-      required: true
-    }
-  },
-  data() {
-    return {
-      vp: null
-    }
-  },
-  mounted() {
-    // Initialize the dashboard
-    this.vp = window.VanguardParking.initialize({
-      container: '#vanguard-dashboard',
-      dashboardId: this.dashboardId,
-      token: this.apiToken,
-      theme: 'light', // 'light' or 'dark'
-      height: '600px',
-      width: '100%',
-    })
-
-    // Optional: Listen for events
-    this.vp.on('ready', () => {
-      console.log('Dashboard is ready')
-    })
-
-    this.vp.on('error', (error) => {
-      console.error('Dashboard error:', error)
-    })
-  },
-  beforeDestroy() {
-    // Cleanup when component is destroyed
-    if (this.vp) {
-      this.vp.destroy()
+    embedUrl() {
+      return \`\${this.dashboardUrl}/embed/dashboard?embedded=true&token=\${this.token}\`;
     }
   }
 }
@@ -124,8 +88,7 @@ export default {
 
 <script setup>
 // In your main component or App.vue
-const dashboardId = 'dashboard_123456'
-const apiToken = '${token || 'YOUR_API_TOKEN'}'
+const apiToken = '${token || 'YOUR_API_TOKEN'}';
 </script>
 
 <style scoped>
@@ -143,53 +106,36 @@ const apiToken = '${token || 'YOUR_API_TOKEN'}'
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vanguard Parking Dashboard</title>
+  <title>Embedded Vanguard Parking Dashboard</title>
   <style>
-    .vanguard-embed {
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    #vanguard-dashboard {
       width: 100%;
-      height: 600px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      height: 800px;
       overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
-  <!-- Include Vanguard Parking embedding script -->
-  <script src="https://embed.vparking.co/embed.js"></script>
 </head>
 <body>
-  <h1>My Application</h1>
-  
-  <div id="vanguard-dashboard" class="vanguard-embed">
-    <!-- Dashboard will be rendered here -->
+  <div id="vanguard-dashboard">
+    <iframe 
+      src="${dashboardUrl}/embed/dashboard?embedded=true&token=${token || 'YOUR_API_TOKEN'}" 
+      title="Vanguard Parking Dashboard"
+      allowfullscreen>
+    </iframe>
   </div>
-
-  <script>
-    // Initialize when document is ready
-    document.addEventListener('DOMContentLoaded', function() {
-      // Your actual dashboard ID and token
-      const dashboardId = 'dashboard_123456';
-      const apiToken = '${token || 'YOUR_API_TOKEN'}';
-      
-      // Initialize the dashboard
-      const vp = window.VanguardParking.initialize({
-        container: '#vanguard-dashboard',
-        dashboardId: dashboardId,
-        token: apiToken,
-        theme: 'light', // 'light' or 'dark'
-        height: '600px',
-        width: '100%',
-      });
-
-      // Optional: Listen for events
-      vp.on('ready', () => {
-        console.log('Dashboard is ready');
-      });
-
-      vp.on('error', (error) => {
-        console.error('Dashboard error:', error);
-      });
-    });
-  </script>
 </body>
 </html>`
 
@@ -224,28 +170,17 @@ const apiToken = '${token || 'YOUR_API_TOKEN'}'
           <h3 className="text-lg font-medium">Getting Started</h3>
           <ol className="list-decimal pl-5 space-y-2">
             <li>
-              <span className="font-medium">Include the embedding script</span>
+              <span className="font-medium">Create an iframe element</span>
               <p className="text-sm text-muted-foreground">
-                Add the Vanguard Parking embedding script to your HTML page:
+                Add an iframe that points to the dashboard with your token:
               </p>
               <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2 text-sm">
-                <code>{'<script src="https://embed.vparking.co/embed.js"></script>'}</code>
+                <code>{`<iframe 
+  src="${dashboardUrl}/embed/dashboard?embedded=true&token=YOUR_API_TOKEN" 
+  title="Vanguard Parking Dashboard"
+  allowfullscreen>
+</iframe>`}</code>
               </pre>
-            </li>
-            <li>
-              <span className="font-medium">Create a container element</span>
-              <p className="text-sm text-muted-foreground">
-                Add a div element where the dashboard will be rendered:
-              </p>
-              <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2 text-sm">
-                <code>{'<div id="vanguard-dashboard" class="vanguard-embed"></div>'}</code>
-              </pre>
-            </li>
-            <li>
-              <span className="font-medium">Initialize the dashboard</span>
-              <p className="text-sm text-muted-foreground">
-                Use the API to initialize the dashboard with your configuration:
-              </p>
             </li>
           </ol>
 
@@ -298,22 +233,12 @@ const apiToken = '${token || 'YOUR_API_TOKEN'}'
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <h4 className="text-base font-medium">container</h4>
+                <h4 className="text-base font-medium">Dashboard URL</h4>
                 <p className="text-sm text-muted-foreground">
-                  CSS selector or DOM element where the dashboard will be rendered.
+                  The URL of the dashboard embedding service, set via environment variable.
                 </p>
                 <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs">
-                  <code>container: '#vanguard-dashboard'</code>
-                </pre>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-base font-medium">dashboardId</h4>
-                <p className="text-sm text-muted-foreground">
-                  Unique identifier for the dashboard you want to embed.
-                </p>
-                <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs">
-                  <code>dashboardId: 'dashboard_123456'</code>
+                  <code>NEXT_PUBLIC_DASHBOARD_EMBED_URL='{process.env.NEXT_PUBLIC_DASHBOARD_EMBED_URL || 'https://embed.vparking.co'}'</code>
                 </pre>
               </div>
 
@@ -343,7 +268,7 @@ const apiToken = '${token || 'YOUR_API_TOKEN'}'
                   Height of the dashboard container. CSS value (px, %, vh).
                 </p>
                 <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs">
-                  <code>height: '600px'</code>
+                  <code>height: '800px'</code>
                 </pre>
               </div>
 
