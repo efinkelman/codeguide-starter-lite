@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
+import { Badge } from '@/components/ui/badge'
 
 import { useSidebar, useDeveloperContext } from '../utils/context-providers'
 
@@ -22,9 +23,10 @@ type NavItemProps = {
   isActive: boolean
   onClick: () => void
   disabled?: boolean
+  badge?: React.ReactNode
 }
 
-const NavItem: React.FC<NavItemProps> = ({ icon, label, isActive, onClick, disabled = false }) => (
+const NavItem: React.FC<NavItemProps> = ({ icon, label, isActive, onClick, disabled = false, badge }) => (
   <button
     className={`flex w-full items-center space-x-2 px-4 py-3 text-left text-sm transition-colors
       ${isActive ? 'bg-accent text-accent-foreground' : 'hover:bg-muted/50'}
@@ -36,6 +38,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, isActive, onClick, disab
       {icon}
     </span>
     <span className="flex-grow">{label}</span>
+    {badge}
     {isActive && <ChevronRight className="h-4 w-4" />}
   </button>
 )
@@ -60,12 +63,30 @@ export function DeveloperSidebar() {
     }
   }, [isMobile, sidebarOpen, setSidebarOpen])
 
+  const ComingSoonBadge = () => (
+    <Badge variant="outline" className="ml-2 text-xs bg-primary/5 text-primary border-primary/20">
+      Soon
+    </Badge>
+  )
+
   const navItems = [
     { icon: <BookOpen className="h-4 w-4" />, label: 'Overview', tabIndex: 0 },
     { icon: <Lock className="h-4 w-4" />, label: 'Authentication', tabIndex: 1 },
     { icon: <PanelLeft className="h-4 w-4" />, label: 'Embedding', tabIndex: 2 },
-    { icon: <Code className="h-4 w-4" />, label: 'API Reference', tabIndex: 3, disabled: true },
-    { icon: <Webhook className="h-4 w-4" />, label: 'Webhooks', tabIndex: 4, disabled: true },
+    { 
+      icon: <Code className="h-4 w-4" />, 
+      label: 'API Reference', 
+      tabIndex: 3, 
+      disabled: true, 
+      badge: <ComingSoonBadge /> 
+    },
+    { 
+      icon: <Webhook className="h-4 w-4" />, 
+      label: 'Webhooks', 
+      tabIndex: 4, 
+      disabled: true,
+      badge: <ComingSoonBadge />
+    },
   ]
 
   const handleLogoutClick = () => {
@@ -123,6 +144,7 @@ export function DeveloperSidebar() {
                     isActive={activeTab === item.tabIndex}
                     onClick={() => !item.disabled && setActiveTab(item.tabIndex)}
                     disabled={item.disabled}
+                    badge={item.badge}
                   />
                 ))}
               </nav>
