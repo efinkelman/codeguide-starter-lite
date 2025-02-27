@@ -1,0 +1,124 @@
+{
+  "apiTags": [
+    "Lots",
+    "Users",
+    "Auth",
+    "Parkwhiz User",
+    "UnenforceableDates",
+    "Permits",
+    "Cameras",
+    "CancellationRequests",
+    "Ticket",
+    "Ticket Actions",
+    "Session",
+    "Captures",
+    "Ticket Note",
+    "Payment Integrations",
+    "Tenants",
+    "Session Validation Explanation",
+    "DMV Records"
+  ],
+  "methodColors": {
+    "GET": "bg-blue-600/10 text-blue-600 border-blue-600/20",
+    "POST": "bg-green-600/10 text-green-600 border-green-600/20",
+    "PATCH": "bg-amber-600/10 text-amber-600 border-amber-600/20",
+    "DELETE": "bg-red-600/10 text-red-600 border-red-600/20"
+  },
+  "endpoints": [
+    {
+      "path": "/api/lot",
+      "method": "POST",
+      "operationId": "LotController_create",
+      "description": "Create a new lot",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateLotDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/Lot" } } },
+      "tag": "Lots"
+    },
+    {
+      "path": "/api/lot",
+      "method": "GET",
+      "operationId": "LotController_findAll",
+      "description": "Get all lots",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/Lot" } } } },
+      "tag": "Lots"
+    },
+    {
+      "path": "/api/lot/{id}",
+      "method": "GET",
+      "operationId": "LotController_findOne",
+      "description": "Get a specific lot by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Lot" } } },
+      "tag": "Lots"
+    },
+    {
+      "path": "/api/lot/{id}",
+      "method": "PATCH",
+      "operationId": "LotController_update",
+      "description": "Update a lot",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateLotDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/Lot" } } },
+      "tag": "Lots"
+    },
+    {
+      "path": "/api/users/{id}",
+      "method": "GET",
+      "operationId": "UsersController_findOne",
+      "description": "Get a user by ID",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/User" } } },
+      "tag": "Users"
+    },
+    {
+      "path": "/api/users/{id}",
+      "method": "PATCH",
+      "operationId": "UsersController_update",
+      "description": "Update a user",
+      "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/UpdateUserDto" } },
+      "responses": { "200": { "schema": { "$ref": "#/components/schemas/User" } } },
+      "tag": "Users"
+    },
+    {
+      "path": "/api/users",
+      "method": "GET",
+      "operationId": "UsersController_findAll",
+      "description": "Get all users",
+      "parameters": [],
+      "responses": { "200": { "schema": { "items": { "$ref": "#/components/schemas/User" } } } },
+      "tag": "Users"
+    },
+    {
+      "path": "/api/users",
+      "method": "POST",
+      "operationId": "UsersController_create",
+      "description": "Create a new user",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/CreateUserDto" } },
+      "responses": { "201": { "schema": { "$ref": "#/components/schemas/User" } } },
+      "tag": "Users"
+    },
+    {
+      "path": "/api/users/password-reset/{email}",
+      "method": "POST",
+      "operationId": "UsersController_passwordReset",
+      "description": "Reset a user's password",
+      "parameters": [{ "name": "email", "required": true, "in": "path", "schema": { "type": "string" } }],
+      "responses": { "201": { "description": "Password reset initiated" } },
+      "tag": "Users"
+    },
+    {
+      "path": "/auth/login",
+      "method": "POST",
+      "operationId": "AuthController_login",
+      "description": "Log in to get an access token",
+      "parameters": [],
+      "requestBody": { "schema": { "$ref": "#/components/schemas/LoginDto" } },
+      "responses": { "200": { "description": "Returns access token" } },
+      "tag": "Auth"
+    }
+  ]
+} 

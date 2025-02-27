@@ -76,9 +76,7 @@ export function DeveloperSidebar() {
     { 
       icon: <Code className="h-4 w-4" />, 
       label: 'API Reference', 
-      tabIndex: 3, 
-      disabled: true, 
-      badge: <ComingSoonBadge /> 
+      tabIndex: 3
     },
     { 
       icon: <Webhook className="h-4 w-4" />, 
