@@ -116,7 +116,7 @@ export function DeveloperSidebar() {
         {(sidebarOpen || !isMobile) && (
           <motion.div
             ref={sidebarRef}
-            className={`fixed inset-y-0 left-0 z-50 flex h-full w-[280px] flex-col overflow-hidden bg-background transition-transform sm:z-0 sm:sticky sm:top-0 ${
+            className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[280px] flex-col overflow-hidden bg-background transition-transform sm:z-0 sm:sticky sm:top-0 ${
               isMobile ? 'shadow-lg' : 'border-r'
             }`}
             initial={isMobile ? 'hidden' : 'visible'}
@@ -134,7 +134,7 @@ export function DeveloperSidebar() {
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto flex flex-col">
               <nav className="flex flex-col py-2">
                 {navItems.map((item) => (
                   <NavItem
@@ -152,7 +152,7 @@ export function DeveloperSidebar() {
               <Separator className="my-4" />
 
               {isAuthenticated ? (
-                <div className="px-4">
+                <div className="px-4 flex-shrink-0">
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">Your API Token</CardTitle>
@@ -192,7 +192,7 @@ export function DeveloperSidebar() {
                   </Button>
                 </div>
               ) : (
-                <div className="px-4">
+                <div className="px-4 flex-shrink-0">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm">Authentication Required</CardTitle>

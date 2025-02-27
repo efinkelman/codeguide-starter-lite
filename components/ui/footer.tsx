@@ -18,13 +18,15 @@ export function Footer({ className, ...props }: FooterProps) {
     >
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-center space-y-4 md:flex-row md:justify-between md:space-y-0">
         <div className="flex items-center space-x-2">
-          <Image 
-            src="/smallVanguard.png" 
-            alt="Vanguard Parking Logo" 
-            width={28} 
-            height={28} 
-            className="h-7 w-auto"
-          />
+          <div className="flex items-center justify-center w-7 h-7 rounded-sm">
+            <Image 
+              src="/smallVanguard.png" 
+              alt="Vanguard Parking Logo" 
+              width={28} 
+              height={28} 
+              className="h-auto w-auto object-contain"
+            />
+          </div>
           <span className="text-lg font-medium logo-text">Vanguard Parking</span>
         </div>
         
