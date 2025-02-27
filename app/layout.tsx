@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { Footer } from '@/components/ui/footer'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -15,8 +16,13 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'CodeGuide Starter Lite',
-  description: 'Starter kit from codeguide.dev',
+  title: 'Vanguard Parking Developer Portal',
+  description: 'Access Vanguard Parking APIs, documentation, and developer resources for seamless integration of parking management solutions into your applications.',
+  icons: {
+    icon: '/smallVanguard.png',
+    apple: '/smallVanguard.png',
+    shortcut: '/smallVanguard.png',
+  },
 }
 
 export default function RootLayout({
@@ -26,9 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <ThemeProvider>
-          {children}
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

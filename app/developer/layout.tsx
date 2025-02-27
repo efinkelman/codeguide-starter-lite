@@ -31,7 +31,7 @@ export default function DeveloperLayout({
   return (
     <DeveloperProvider>
       <SidebarProvider>
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-full flex-col">
           <div className="fixed top-4 right-4 z-50">
             <ThemeToggle />
           </div>
