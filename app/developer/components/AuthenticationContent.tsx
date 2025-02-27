@@ -15,55 +15,16 @@ export function AuthenticationContent() {
     setIsAuthModalOpen(true)
   }
 
-  const curlCode = `curl -X POST https://api.vparking.co/v1/resource \\
-  -H "Authorization: Bearer ${token || 'YOUR_API_TOKEN'}" \\
-  -H "Content-Type: application/json" \\
-  -d '{"param1": "value1", "param2": "value2"}'`
+  const curlCode = `curl -X 'POST' \\
+  'https://qapi.vparking.co/auth/login' \\
+  -H 'accept: */*' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "email": "your_email@example.com",
+  "password": "your_password"
+}'`
 
-  const nodeCode = `const axios = require('axios');
-
-const apiToken = '${token || 'YOUR_API_TOKEN'}';
-
-async function makeApiRequest() {
-  try {
-    const response = await axios.get('https://api.vparking.co/v1/resource', {
-      headers: {
-        'Authorization': \`Bearer \${apiToken}\`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    console.log(response.data);
-  } catch (error) {
-    console.error('API request failed:', error);
-  }
-}
-
-makeApiRequest();`
-
-  const pythonCode = `import requests
-
-api_token = '${token || 'YOUR_API_TOKEN'}'
-
-def make_api_request():
-    headers = {
-        'Authorization': f'Bearer {api_token}',
-        'Content-Type': 'application/json'
-    }
-    
-    response = requests.get(
-        'https://api.vparking.co/v1/resource',
-        headers=headers
-    )
-    
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error: {response.status_code}, {response.text}")
-        return None
-
-data = make_api_request()
-print(data)`
+  const responseExample = `{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"}`
 
   return (
     <div className="space-y-8 pb-16">
@@ -83,57 +44,47 @@ print(data)`
         <CardHeader>
           <CardTitle>API Authentication</CardTitle>
           <CardDescription>
-            All API requests must include a Bearer token for authentication
+            Generate an authentication token to access the API
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p>
-            The Vanguard Parking API uses token-based authentication. You need to include your API token in the
-            Authorization header of each request using the Bearer scheme.
+            The Vanguard Parking API uses token-based authentication. You need to generate an API token
+            which must be included in the Authorization header of each request using the Bearer scheme.
           </p>
-
-          <div className="rounded-md bg-muted p-4">
-            <p className="text-sm font-medium">Example Request Header:</p>
-            <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2">
-              <code className="text-sm">Authorization: Bearer {token || 'YOUR_API_TOKEN'}</code>
-            </pre>
-          </div>
 
           <div className="my-6 border-t"></div>
 
-          <h3 className="text-lg font-medium">Code Examples</h3>
+          <h3 className="text-lg font-medium">How to Generate a Token</h3>
           <p className="text-sm text-muted-foreground">
-            Here are examples of how to authenticate API requests in different programming languages:
+            To generate an authentication token, make a POST request to the login endpoint with your credentials:
           </p>
 
-          <Tabs value={activeCodeTab} onValueChange={setActiveCodeTab} className="mt-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="curl">cURL</TabsTrigger>
-              <TabsTrigger value="nodejs">Node.js</TabsTrigger>
-              <TabsTrigger value="python">Python</TabsTrigger>
-            </TabsList>
-            <TabsContent value="curl">
-              <div className="rounded-md bg-black p-4">
-                <pre className="overflow-x-auto text-sm text-white">
-                  <code>{curlCode}</code>
-                </pre>
-              </div>
-            </TabsContent>
-            <TabsContent value="nodejs">
-              <div className="rounded-md bg-black p-4">
-                <pre className="overflow-x-auto text-sm text-white">
-                  <code>{nodeCode}</code>
-                </pre>
-              </div>
-            </TabsContent>
-            <TabsContent value="python">
-              <div className="rounded-md bg-black p-4">
-                <pre className="overflow-x-auto text-sm text-white">
-                  <code>{pythonCode}</code>
-                </pre>
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="rounded-md bg-black p-4 mt-4">
+            <pre className="overflow-x-auto text-sm text-white">
+              <code>{curlCode}</code>
+            </pre>
+          </div>
+
+          <h3 className="text-lg font-medium mt-6">Response</h3>
+          <p className="text-sm text-muted-foreground">
+            Upon successful authentication, you will receive a response with your access token:
+          </p>
+
+          <div className="rounded-md bg-black p-4 mt-4">
+            <pre className="overflow-x-auto text-sm text-white">
+              <code>{responseExample}</code>
+            </pre>
+          </div>
+
+          <div className="mt-6">
+            <p className="text-sm">
+              Include this token in the Authorization header for all subsequent API requests:
+            </p>
+            <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-2">
+              <code className="text-sm">Authorization: Bearer {token || 'YOUR_ACCESS_TOKEN'}</code>
+            </pre>
+          </div>
         </CardContent>
       </Card>
 
