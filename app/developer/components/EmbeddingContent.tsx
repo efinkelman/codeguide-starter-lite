@@ -6,12 +6,14 @@ import { SectionHeader } from './SectionHeader'
 import { Button } from '@/components/ui/button'
 import { useDeveloperContext } from '../utils/context-providers'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle2, Lock, KeyRound } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Lock, KeyRound, Terminal } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { CodeBlock } from '@/components/ui/code-block'
 import Script from 'next/script'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
-// Add TypeScript declaration for the VanguardEmbed global
+// Updated TypeScript declaration for the VanguardEmbed global
 declare global {
   interface Window {
     VanguardEmbed?: {
@@ -19,17 +21,20 @@ declare global {
         container: string;
         token: string;
         partnerId?: string;
+        dashboardUrl?: string;
         debug?: boolean;
+        timeout?: number;
+        onReady?: () => void;
         onLoad?: () => void;
         onError?: (error: any) => void;
+        onNavigate?: (url: string) => void;
       }) => void;
       destroy?: () => void;
+      refresh?: () => void;
+      version?: () => string;
     };
   }
 }
-
-// Define the actual dashboard URL for the iframe
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || `${process.env.NEXT_PUBLIC_VANGUARD_EMBED_HOST || 'https://app.vanguardparking.co'}/embed/dashboard`;
 
 export function EmbeddingContent() {
   const { isAuthenticated, setIsAuthModalOpen, token } = useDeveloperContext()
@@ -37,89 +42,185 @@ export function EmbeddingContent() {
   const [demoStatus, setDemoStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = React.useState('')
   const [scriptLoaded, setScriptLoaded] = React.useState(false)
+  const [logs, setLogs] = React.useState<Array<{time: string, message: string, type: 'info' | 'error' | 'warning'}>>([])
+  const [isLogsOpen, setIsLogsOpen] = React.useState(false)
   
-  // Define the embed script URL from environment variable
-  const dashboardEnvUrl = process.env.NEXT_PUBLIC_VANGUARD_EMBED_HOST || 'https://app.vanguardparking.co';
+  // Use only environment variables for URLs, with fallbacks
   const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  // Use the environment variable or default to the production URL
-  const dashboardUrl = dashboardEnvUrl || (isLocalhost ? 'http://localhost:3001' : 'https://app.vanguardparking.co');
+  const dashboardUrl = process.env.NEXT_PUBLIC_VANGUARD_EMBED_HOST || (isLocalhost ? 'http://localhost:3001' : 'https://app.vanguardparking.co');
   const embedScriptUrl = `${dashboardUrl}/embed/vanguard-embed.js`;
+
+  // Track if the dashboard has initialized to prevent duplicate initializations
+  const dashboardInitializedRef = React.useRef<boolean>(false);
+  
+  // Track timeout timer to clear it when needed
+  const timeoutTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Add a log entry
+  const addLog = React.useCallback((message: string, type: 'info' | 'error' | 'warning' = 'info') => {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString();
+    setLogs(prevLogs => [...prevLogs, { time: timeStr, message, type }]);
+    
+    // Auto-open logs on errors or warnings
+    if (type === 'error' || type === 'warning') {
+      setIsLogsOpen(true);
+    }
+    
+    // Limit logs to last 100 entries to prevent memory issues
+    if (logs.length > 100) {
+      setLogs(prevLogs => prevLogs.slice(-100));
+    }
+  }, [logs.length]);
 
   const handleLogin = () => {
     setIsAuthModalOpen(true)
   }
   
-  // Handle script load event
-  const handleScriptLoad = React.useCallback(() => {
-    console.log('Vanguard embed script loaded successfully');
-    setScriptLoaded(true);
-    
-    // If the user is authenticated and we have a token, initialize the dashboard
-    if (isAuthenticated && token && containerRef.current) {
-      setDemoStatus('loading');
-      
-      try {
-        // Make sure the VanguardEmbed global object is available
-        if (window.VanguardEmbed && typeof window.VanguardEmbed.init === 'function') {
-          // Get partnerId from environment if available
-          const partnerId = process.env.NEXT_PUBLIC_PARTNER_ID;
-          
-          // Initialize the dashboard
-          window.VanguardEmbed.init({
-            container: containerRef.current.id,
-            token: token,
-            partnerId: partnerId || undefined,
-            debug: isLocalhost,
-            onLoad: function() {
-              console.log('Dashboard content loaded successfully');
-              setDemoStatus('success');
-            },
-            onError: function(error: any) {
-              console.error('Error loading dashboard content:', error);
-              setErrorMessage(error?.message || 'Failed to load the dashboard content');
-              setDemoStatus('error');
-            }
-          });
-        } else {
-          throw new Error('Vanguard embed script failed to initialize properly');
-        }
-      } catch (error: any) {
-        console.error('Error initializing dashboard:', error);
-        setErrorMessage(error?.message || 'Failed to initialize the dashboard');
-        setDemoStatus('error');
-      }
-    }
-  }, [isAuthenticated, token, isLocalhost]);
+  // Clear logs
+  const clearLogs = () => {
+    setLogs([]);
+  }
   
-  // Handle script error event
-  const handleScriptError = React.useCallback(() => {
-    console.error('Failed to load Vanguard embed script');
-    setErrorMessage('Failed to load the embed script. Please try again later.');
-    setDemoStatus('error');
-  }, []);
-
-  // Initialize dashboard when script is loaded and user gets authenticated
-  React.useEffect(() => {
-    if (scriptLoaded && isAuthenticated && token && containerRef.current) {
-      handleScriptLoad();
+  // Initialize the dashboard with all necessary callbacks
+  const initializeDashboard = React.useCallback(() => {
+    if (!containerRef.current || !token || !window.VanguardEmbed || dashboardInitializedRef.current) {
+      return;
+    }
+    
+    setDemoStatus('loading');
+    addLog('Initializing dashboard...');
+    
+    try {
+      // Mark as initialized to prevent duplicate initializations
+      dashboardInitializedRef.current = true;
       
-      // Set a timeout for loading
-      const timer = setTimeout(() => {
-        // Check if still loading after timeout
+      // Get partnerId from environment if available
+      const partnerId = process.env.NEXT_PUBLIC_PARTNER_ID;
+      
+      // Set up the timeout for dashboard loading
+      if (timeoutTimerRef.current) {
+        clearTimeout(timeoutTimerRef.current);
+      }
+      
+      timeoutTimerRef.current = setTimeout(() => {
+        // Only trigger timeout if still in loading state
         setDemoStatus((currentStatus) => {
           if (currentStatus === 'loading') {
-            setErrorMessage('Dashboard took too long to load. Please try again.');
+            const errorMsg = 'Dashboard took too long to load. Please try again.';
+            addLog(errorMsg, 'error');
+            setErrorMessage(errorMsg);
             return 'error';
           }
           return currentStatus;
         });
-      }, 15000); // 15 seconds timeout
+      }, 20000); // 20 seconds timeout
       
-      return () => {
-        clearTimeout(timer);
-      };
+      // Log the embed version if available
+      if (typeof window.VanguardEmbed.version === 'function') {
+        addLog(`Embed script version: ${window.VanguardEmbed.version()}`);
+      }
+      
+      // Initialize the dashboard with both onLoad and onReady callbacks
+      window.VanguardEmbed.init({
+        container: containerRef.current.id,
+        token: token,
+        partnerId: partnerId || undefined,
+        // Explicitly set dashboardUrl to ensure consistency
+        dashboardUrl: dashboardUrl,
+        debug: true, // Always enable debug for logging
+        timeout: 20000, // 20 seconds timeout (should match the React timeout)
+        // onLoad is triggered when the iframe itself has loaded
+        onLoad: function() {
+          addLog('Dashboard iframe loaded');
+          // We don't set success here as we wait for the dashboard to be ready
+        },
+        // onReady is triggered when the dashboard application is fully loaded and ready
+        onReady: function() {
+          addLog('Dashboard content loaded and ready');
+          // Clear timeout timer since dashboard is loaded
+          if (timeoutTimerRef.current) {
+            clearTimeout(timeoutTimerRef.current);
+            timeoutTimerRef.current = null;
+          }
+          setDemoStatus('success');
+        },
+        // Handle various error scenarios with appropriate messaging
+        onError: function(error: any) {
+          addLog(`Error loading dashboard: ${error?.message || JSON.stringify(error)}`, 'error');
+          
+          // Clear timeout timer since we have an error response
+          if (timeoutTimerRef.current) {
+            clearTimeout(timeoutTimerRef.current);
+            timeoutTimerRef.current = null;
+          }
+          
+          // Provide more specific error messaging based on error code
+          let errorMessage = 'Failed to load the dashboard content';
+          
+          if (error?.code === 'AUTH_ERROR') {
+            errorMessage = 'Authentication failed. Please check your API token.';
+          } else if (error?.code === 'LOAD_TIMEOUT') {
+            errorMessage = 'Dashboard took too long to load. Please try again.';
+          } else if (error?.code === 'IFRAME_LOAD_ERROR') {
+            errorMessage = 'Failed to load the dashboard. Please check your network connection.';
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
+          
+          setErrorMessage(errorMessage);
+          setDemoStatus('error');
+          
+          // Reset the initialization flag to allow retrying
+          dashboardInitializedRef.current = false;
+        },
+        // Track dashboard navigation events
+        onNavigate: function(url: string) {
+          addLog(`Dashboard navigation: ${url}`);
+        }
+      });
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Failed to initialize the dashboard';
+      addLog(`Initialization error: ${errorMsg}`, 'error');
+      setErrorMessage(errorMsg);
+      setDemoStatus('error');
+      dashboardInitializedRef.current = false;
     }
-  }, [scriptLoaded, isAuthenticated, token, handleScriptLoad]);
+  }, [token, dashboardUrl, addLog]);
+  
+  // Handle script load event
+  const handleScriptLoad = React.useCallback(() => {
+    addLog('Vanguard embed script loaded successfully');
+    setScriptLoaded(true);
+    
+    // Initialize dashboard if user is already authenticated
+    if (isAuthenticated && token && containerRef.current) {
+      initializeDashboard();
+    }
+  }, [isAuthenticated, token, initializeDashboard, addLog]);
+  
+  // Handle script error event
+  const handleScriptError = React.useCallback(() => {
+    const errorMsg = 'Failed to load the embed script. Please try again later.';
+    addLog(errorMsg, 'error');
+    setErrorMessage(errorMsg);
+    setDemoStatus('error');
+  }, [addLog]);
+
+  // Initialize dashboard when script is loaded and user gets authenticated
+  React.useEffect(() => {
+    if (scriptLoaded && isAuthenticated && token && containerRef.current && !dashboardInitializedRef.current) {
+      initializeDashboard();
+    }
+    
+    // Clean up timeout on unmount
+    return () => {
+      if (timeoutTimerRef.current) {
+        clearTimeout(timeoutTimerRef.current);
+        timeoutTimerRef.current = null;
+      }
+    };
+  }, [scriptLoaded, isAuthenticated, token, initializeDashboard]);
 
   // Clean up when component unmounts or token changes
   React.useEffect(() => {
@@ -128,8 +229,69 @@ export function EmbeddingContent() {
       if (window.VanguardEmbed && typeof window.VanguardEmbed.destroy === 'function') {
         window.VanguardEmbed.destroy();
       }
+      
+      // Reset the initialization flag
+      dashboardInitializedRef.current = false;
+      
+      // Clear any pending timeouts
+      if (timeoutTimerRef.current) {
+        clearTimeout(timeoutTimerRef.current);
+        timeoutTimerRef.current = null;
+      }
     };
   }, [token]);
+
+  // Handle retry attempts
+  const handleRetry = React.useCallback(() => {
+    setDemoStatus('loading');
+    
+    // Reset the error message
+    setErrorMessage('');
+    addLog('Retrying dashboard initialization...');
+    
+    // Reset the initialization flag
+    dashboardInitializedRef.current = false;
+    
+    // Use refresh if available, otherwise reinitialize
+    if (window.VanguardEmbed && typeof window.VanguardEmbed.refresh === 'function') {
+      // Set up timeout for refresh operation
+      if (timeoutTimerRef.current) {
+        clearTimeout(timeoutTimerRef.current);
+      }
+      
+      timeoutTimerRef.current = setTimeout(() => {
+        setDemoStatus((currentStatus) => {
+          if (currentStatus === 'loading') {
+            const errorMsg = 'Dashboard took too long to load. Please try again.';
+            addLog(errorMsg, 'error');
+            setErrorMessage(errorMsg);
+            return 'error';
+          }
+          return currentStatus;
+        });
+      }, 20000);
+      
+      // Call refresh method
+      addLog('Using refresh method to reload dashboard');
+      window.VanguardEmbed.refresh();
+    } else {
+      // Reinitialize from scratch
+      addLog('Reinitializing dashboard from scratch');
+      initializeDashboard();
+    }
+  }, [initializeDashboard, addLog]);
+
+  // Format logs for display
+  const getLogClass = (type: 'info' | 'error' | 'warning') => {
+    switch (type) {
+      case 'error':
+        return 'text-red-500';
+      case 'warning':
+        return 'text-amber-500';
+      default:
+        return 'text-foreground';
+    }
+  };
 
   return (
     <div className="space-y-8 pb-16">
@@ -232,25 +394,7 @@ export function EmbeddingContent() {
                         size="sm" 
                         variant="outline" 
                         className="mt-2"
-                        onClick={() => {
-                          setDemoStatus('loading');
-                          // Force re-initialization
-                          if (window.VanguardEmbed && typeof window.VanguardEmbed.init === 'function' && containerRef.current && token) {
-                            window.VanguardEmbed.init({
-                              container: containerRef.current.id,
-                              token: token,
-                              partnerId: process.env.NEXT_PUBLIC_PARTNER_ID || undefined,
-                              debug: isLocalhost,
-                              onLoad: function() {
-                                setDemoStatus('success');
-                              },
-                              onError: function(error: any) {
-                                setErrorMessage(error?.message || 'Failed to load the dashboard content');
-                                setDemoStatus('error');
-                              }
-                            });
-                          }
-                        }}
+                        onClick={handleRetry}
                       >
                         Try again
                       </Button>
@@ -263,8 +407,55 @@ export function EmbeddingContent() {
               <div 
                 id="vanguard-dashboard-demo" 
                 ref={containerRef}
-                className="w-full h-[600px] overflow-hidden"
+                className="w-full overflow-auto"
+                style={{ height: '600px', minHeight: '600px' }}
               ></div>
+              
+              {/* Logs section */}
+              <Collapsible 
+                open={isLogsOpen} 
+                onOpenChange={setIsLogsOpen}
+                className="mt-4 px-6 pb-6"
+              >
+                <div className="flex items-center justify-between">
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Terminal className="h-4 w-4" />
+                      <span>{isLogsOpen ? 'Hide Logs' : 'Show Logs'}</span>
+                    </Button>
+                  </CollapsibleTrigger>
+                  
+                  {logs.length > 0 && isLogsOpen && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={clearLogs}
+                    >
+                      Clear Logs
+                    </Button>
+                  )}
+                </div>
+                
+                <CollapsibleContent className="mt-2">
+                  <Card>
+                    <CardContent className="p-0">
+                      <ScrollArea className="h-[200px] w-full rounded-md border">
+                        <div className="p-4 font-mono text-sm">
+                          {logs.length > 0 ? (
+                            logs.map((log, index) => (
+                              <div key={index} className={`${getLogClass(log.type)} mb-1`}>
+                                <span className="text-muted-foreground">[{log.time}]</span> {log.message}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-muted-foreground italic">No logs yet</div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           )}
         </CardContent>
@@ -321,7 +512,7 @@ export function EmbeddingContent() {
                 Add a div element where the dashboard will be rendered:
               </p>
               <CodeBlock 
-                code={`<div id="vanguard-dashboard" style="width: 100%; height: 800px;"></div>`}
+                code={`<div id="vanguard-dashboard" style="width: 100%; height: 800px; overflow: auto;"></div>`}
                 language="html"
                 className="mt-2"
               />
@@ -338,7 +529,13 @@ export function EmbeddingContent() {
       container: 'vanguard-dashboard',
       token: '${token || 'YOUR_JWT_TOKEN'}',  // Replace with actual JWT token
       partnerId: 'YOUR_PARTNER_ID', // Optional: Include if you have a partner ID
-      debug: true // Set to true for development, false for production
+      debug: true, // Set to true for development, false for production
+      onReady: function() {
+        console.log('Dashboard is ready and fully loaded');
+      },
+      onError: function(error) {
+        console.error('Dashboard error:', error.message);
+      }
     });
   });
 </script>`}
@@ -351,4 +548,4 @@ export function EmbeddingContent() {
       </Card>
     </div>
   )
-} 
+}
