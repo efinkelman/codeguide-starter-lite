@@ -9,60 +9,101 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle, CheckCircle2, Lock, KeyRound } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { CodeBlock } from '@/components/ui/code-block'
+import Script from 'next/script'
+
+// Add TypeScript declaration for the VanguardEmbed global
+declare global {
+  interface Window {
+    VanguardEmbed?: {
+      init: (config: {
+        container: string;
+        token: string;
+        partnerId?: string;
+        debug?: boolean;
+        onLoad?: () => void;
+        onError?: (error: any) => void;
+      }) => void;
+      destroy?: () => void;
+    };
+  }
+}
 
 // Define the actual dashboard URL for the iframe
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3000/embed/dashboard';
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || `${process.env.NEXT_PUBLIC_VANGUARD_EMBED_HOST || 'https://app.vanguardparking.co'}/embed/dashboard`;
 
 export function EmbeddingContent() {
   const { isAuthenticated, setIsAuthModalOpen, token } = useDeveloperContext()
-  const iframeRef = React.useRef<HTMLIFrameElement>(null)
+  const containerRef = React.useRef<HTMLDivElement>(null)
   const [demoStatus, setDemoStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = React.useState('')
+  const [scriptLoaded, setScriptLoaded] = React.useState(false)
   
   // Define the embed script URL from environment variable
-  const dashboardEnvUrl = process.env.NEXT_PUBLIC_DASHBOARD_EMBED_URL || '';
+  const dashboardEnvUrl = process.env.NEXT_PUBLIC_VANGUARD_EMBED_HOST || 'https://app.vanguardparking.co';
   const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  const dashboardUrl = dashboardEnvUrl || (isLocalhost ? 'http://localhost:3001' : 'https://partner.vparking.co');
+  // Use the environment variable or default to the production URL
+  const dashboardUrl = dashboardEnvUrl || (isLocalhost ? 'http://localhost:3001' : 'https://app.vanguardparking.co');
+  const embedScriptUrl = `${dashboardUrl}/embed/vanguard-embed.js`;
 
   const handleLogin = () => {
     setIsAuthModalOpen(true)
   }
-
-  // Handle iframe load events
-  const handleIframeLoad = React.useCallback(() => {
-    console.log('Dashboard iframe loaded successfully');
-    setDemoStatus('success');
-  }, []);
-
-  // Handle iframe error events
-  const handleIframeError = React.useCallback((event: React.SyntheticEvent<HTMLIFrameElement, Event>) => {
-    console.error('Error loading dashboard iframe:', event);
-    setErrorMessage('Failed to load the dashboard iframe');
+  
+  // Handle script load event
+  const handleScriptLoad = React.useCallback(() => {
+    console.log('Vanguard embed script loaded successfully');
+    setScriptLoaded(true);
+    
+    // If the user is authenticated and we have a token, initialize the dashboard
+    if (isAuthenticated && token && containerRef.current) {
+      setDemoStatus('loading');
+      
+      try {
+        // Make sure the VanguardEmbed global object is available
+        if (window.VanguardEmbed && typeof window.VanguardEmbed.init === 'function') {
+          // Get partnerId from environment if available
+          const partnerId = process.env.NEXT_PUBLIC_PARTNER_ID;
+          
+          // Initialize the dashboard
+          window.VanguardEmbed.init({
+            container: containerRef.current.id,
+            token: token,
+            partnerId: partnerId || undefined,
+            debug: isLocalhost,
+            onLoad: function() {
+              console.log('Dashboard content loaded successfully');
+              setDemoStatus('success');
+            },
+            onError: function(error: any) {
+              console.error('Error loading dashboard content:', error);
+              setErrorMessage(error?.message || 'Failed to load the dashboard content');
+              setDemoStatus('error');
+            }
+          });
+        } else {
+          throw new Error('Vanguard embed script failed to initialize properly');
+        }
+      } catch (error: any) {
+        console.error('Error initializing dashboard:', error);
+        setErrorMessage(error?.message || 'Failed to initialize the dashboard');
+        setDemoStatus('error');
+      }
+    }
+  }, [isAuthenticated, token, isLocalhost]);
+  
+  // Handle script error event
+  const handleScriptError = React.useCallback(() => {
+    console.error('Failed to load Vanguard embed script');
+    setErrorMessage('Failed to load the embed script. Please try again later.');
     setDemoStatus('error');
   }, []);
 
-  // Generate the iframe URL with token
-  const getIframeUrl = React.useCallback((token: string) => {
-    try {
-      const url = new URL(DASHBOARD_URL);
-      url.searchParams.append('embedded', 'true');
-      url.searchParams.append('token', token);
-      return url.toString();
-    } catch (error) {
-      console.error('Error creating iframe URL:', error);
-      return `${DASHBOARD_URL}?embedded=true&token=${token}`;
-    }
-  }, []);
-
-  // Initialize dashboard when component mounts and user is authenticated
+  // Initialize dashboard when script is loaded and user gets authenticated
   React.useEffect(() => {
-    // Only set loading state if currently idle
-    if (isAuthenticated && token) {
-      // Only start loading if not already in loading/success/error state
-      if (demoStatus === 'idle') {
-        setDemoStatus('loading');
-      }
+    if (scriptLoaded && isAuthenticated && token && containerRef.current) {
+      handleScriptLoad();
       
+      // Set a timeout for loading
       const timer = setTimeout(() => {
         // Check if still loading after timeout
         setDemoStatus((currentStatus) => {
@@ -78,10 +119,28 @@ export function EmbeddingContent() {
         clearTimeout(timer);
       };
     }
-  }, [isAuthenticated, token, demoStatus]);
+  }, [scriptLoaded, isAuthenticated, token, handleScriptLoad]);
+
+  // Clean up when component unmounts or token changes
+  React.useEffect(() => {
+    return () => {
+      // If there's a cleanup method in the VanguardEmbed API, call it here
+      if (window.VanguardEmbed && typeof window.VanguardEmbed.destroy === 'function') {
+        window.VanguardEmbed.destroy();
+      }
+    };
+  }, [token]);
 
   return (
     <div className="space-y-8 pb-16">
+      {/* Add the embed script to the page */}
+      <Script
+        src={embedScriptUrl}
+        onLoad={handleScriptLoad}
+        onError={handleScriptError}
+        strategy="lazyOnload"
+      />
+      
       <SectionHeader
         title="Embedding"
         description="Integrate Vanguard Parking dashboards into your applications"
@@ -161,7 +220,7 @@ export function EmbeddingContent() {
                 </div>
               )}
               
-              {/* Error alert - show above the iframe container */}
+              {/* Error alert - show above the container */}
               {demoStatus === 'error' && (
                 <div className="px-6 pb-4">
                   <Alert variant="destructive">
@@ -169,27 +228,27 @@ export function EmbeddingContent() {
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription className="space-y-2">
                       <p>{errorMessage || 'Failed to load the dashboard. Please try again later.'}</p>
-                      {DASHBOARD_URL.includes('localhost') && (
-                        <p className="text-sm">
-                          You&apos;re trying to load a dashboard from: <code className="bg-background p-1 rounded">{DASHBOARD_URL}</code>. 
-                          Make sure this service is running locally.
-                        </p>
-                      )}
                       <Button 
                         size="sm" 
                         variant="outline" 
                         className="mt-2"
                         onClick={() => {
                           setDemoStatus('loading');
-                          if (iframeRef.current) {
-                            // Reset the iframe by reloading it
-                            const currentSrc = iframeRef.current.src;
-                            iframeRef.current.src = '';
-                            setTimeout(() => {
-                              if (iframeRef.current) {
-                                iframeRef.current.src = currentSrc;
+                          // Force re-initialization
+                          if (window.VanguardEmbed && typeof window.VanguardEmbed.init === 'function' && containerRef.current && token) {
+                            window.VanguardEmbed.init({
+                              container: containerRef.current.id,
+                              token: token,
+                              partnerId: process.env.NEXT_PUBLIC_PARTNER_ID || undefined,
+                              debug: isLocalhost,
+                              onLoad: function() {
+                                setDemoStatus('success');
+                              },
+                              onError: function(error: any) {
+                                setErrorMessage(error?.message || 'Failed to load the dashboard content');
+                                setDemoStatus('error');
                               }
-                            }, 100);
+                            });
                           }
                         }}
                       >
@@ -200,20 +259,12 @@ export function EmbeddingContent() {
                 </div>
               )}
               
-              {/* Always render the iframe container, but only populate it when authenticated */}
-              <div className="w-full h-[600px] overflow-hidden">
-                {isAuthenticated && token && (
-                  <iframe
-                    ref={iframeRef}
-                    src={getIframeUrl(token)}
-                    title="Vanguard Parking Dashboard"
-                    className="w-full h-full border-0"
-                    onLoad={handleIframeLoad}
-                    onError={handleIframeError}
-                    allowFullScreen
-                  />
-                )}
-              </div>
+              {/* Dashboard container - this will be populated by the VanguardEmbed.init method */}
+              <div 
+                id="vanguard-dashboard-demo" 
+                ref={containerRef}
+                className="w-full h-[600px] overflow-hidden"
+              ></div>
             </div>
           )}
         </CardContent>
@@ -278,15 +329,16 @@ export function EmbeddingContent() {
             <li>
               <span className="font-medium">Initialize the dashboard</span>
               <p className="text-sm text-muted-foreground">
-                Initialize the dashboard with your access token:
+                Initialize the dashboard with your JWT token:
               </p>
               <CodeBlock 
                 code={`<script>
   document.addEventListener('DOMContentLoaded', function() {
     VanguardEmbed.init({
       container: 'vanguard-dashboard',
-      accessToken: '${token || 'YOUR_API_TOKEN'}',  // Use your authentication token here
-      baseUrl: '${dashboardUrl}'
+      token: '${token || 'YOUR_JWT_TOKEN'}',  // Replace with actual JWT token
+      partnerId: 'YOUR_PARTNER_ID', // Optional: Include if you have a partner ID
+      debug: true // Set to true for development, false for production
     });
   });
 </script>`}
