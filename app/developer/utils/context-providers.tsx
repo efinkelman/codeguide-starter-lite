@@ -1,28 +1,49 @@
 'use client'
 
 import * as React from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 // SidebarContext manages the sidebar state and navigation
 type SidebarContextType = {
   sidebarOpen: boolean
   setSidebarOpen: (isOpen: boolean) => void
-  activeTab: number
-  setActiveTab: (tabIndex: number) => void
+  activeRoute: string
+  navigateTo: (route: string) => void
 }
 
 export const SidebarContext = React.createContext<SidebarContextType>({
   sidebarOpen: true,
   setSidebarOpen: () => {},
-  activeTab: 0,
-  setActiveTab: () => {},
+  activeRoute: '/',
+  navigateTo: () => {},
 })
 
 export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
-  const [activeTab, setActiveTab] = React.useState(0)
+  const router = useRouter()
+  const pathname = usePathname()
+  
+  // Extract the active route from the pathname
+  const activeRoute = React.useMemo(() => {
+    // Default to overview (root developer page)
+    if (pathname === '/developer') return '/'
+    
+    // Extract the section after /developer/
+    const section = pathname.split('/developer/')[1] || '/'
+    return section
+  }, [pathname])
+  
+  // Function to navigate to a specific route
+  const navigateTo = (route: string) => {
+    if (route === '/') {
+      router.push('/developer')
+    } else {
+      router.push(`/developer/${route}`)
+    }
+  }
 
   return (
-    <SidebarContext.Provider value={{ sidebarOpen, setSidebarOpen, activeTab, setActiveTab }}>
+    <SidebarContext.Provider value={{ sidebarOpen, setSidebarOpen, activeRoute, navigateTo }}>
       {children}
     </SidebarContext.Provider>
   )

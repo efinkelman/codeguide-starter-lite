@@ -10,7 +10,7 @@ import { isApiReferenceEnabled } from '../utils/feature-flags'
 
 export function WelcomePage() {
   const { isAuthenticated, setIsAuthModalOpen } = useDeveloperContext()
-  const { setActiveTab } = useSidebar()
+  const { navigateTo } = useSidebar()
   
   // Check if API Reference should be enabled using our utility function
   const [apiReferenceEnabled, setApiReferenceEnabled] = React.useState(false)
@@ -29,7 +29,7 @@ export function WelcomePage() {
       description: 'Learn how to authenticate with our API and manage your tokens.',
       icon: <Lock className="h-10 w-10 text-primary" />,
       buttonText: 'View Docs',
-      tabIndex: 1,
+      route: 'authentication',
       disabled: false,
     },
     {
@@ -37,7 +37,7 @@ export function WelcomePage() {
       description: 'Embed Vanguard Parking dashboards in your own applications.',
       icon: <PanelLeft className="h-10 w-10 text-primary" />,
       buttonText: 'View Docs',
-      tabIndex: 2,
+      route: 'embedding',
       disabled: false,
     },
     {
@@ -45,7 +45,7 @@ export function WelcomePage() {
       description: 'Comprehensive API documentation with examples for all endpoints.',
       icon: <Code className="h-10 w-10 text-primary" />,
       buttonText: 'View Reference',
-      tabIndex: 3,
+      route: 'api-reference',
       disabled: !apiReferenceEnabled,
     },
     {
@@ -53,7 +53,7 @@ export function WelcomePage() {
       description: 'Set up webhooks to receive real-time updates from Vanguard Parking.',
       icon: <Webhook className="h-10 w-10 text-primary" />,
       buttonText: 'View Docs',
-      tabIndex: 4,
+      route: 'webhooks',
       disabled: true,
     },
   ]
@@ -84,7 +84,7 @@ export function WelcomePage() {
               <Button 
                 variant="secondary" 
                 className="w-full"
-                onClick={() => !card.disabled && setActiveTab(card.tabIndex)}
+                onClick={() => !card.disabled && navigateTo(card.route)}
                 disabled={card.disabled}
               >
                 {card.buttonText}

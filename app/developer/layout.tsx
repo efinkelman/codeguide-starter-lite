@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import { SidebarProvider, DeveloperProvider } from './utils/context-providers'
 import { hideSidebar, createSidebarObserver } from './utils/developer-sidebar-script'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { DeveloperSidebar } from './components/DeveloperSidebar'
 
 export default function DeveloperLayout({
   children,
@@ -68,18 +69,24 @@ export default function DeveloperLayout({
   }, [])
 
   return (
-    <DeveloperProvider>
-      <SidebarProvider>
-        <div className="flex min-h-screen flex-col">
-          <div className="fixed top-4 right-4 z-50">
+    <SidebarProvider>
+      <DeveloperProvider>
+        <div className="flex min-h-screen flex-col sm:flex-row" data-developer-portal="true">
+          <DeveloperSidebar />
+          
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="mx-auto max-w-4xl">
+              {children}
+            </div>
+          </div>
+          
+          <Toaster position="top-right" />
+          
+          <div className="fixed bottom-4 right-4">
             <ThemeToggle />
           </div>
-          <main className="flex-1">
-            {children}
-          </main>
         </div>
-        <Toaster position="top-center" />
-      </SidebarProvider>
-    </DeveloperProvider>
+      </DeveloperProvider>
+    </SidebarProvider>
   )
 } 

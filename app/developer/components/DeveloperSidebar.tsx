@@ -46,7 +46,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, isActive, onClick, disab
 
 export function DeveloperSidebar() {
   const isMobile = useIsMobile()
-  const { sidebarOpen, setSidebarOpen, activeTab, setActiveTab } = useSidebar()
+  const { sidebarOpen, setSidebarOpen, activeRoute, navigateTo } = useSidebar()
   const { isAuthenticated, token, copyToken, copySuccess, handleLogout } = useDeveloperContext()
   const sidebarRef = React.useRef<HTMLDivElement>(null)
   
@@ -78,20 +78,20 @@ export function DeveloperSidebar() {
   )
 
   const navItems = [
-    { icon: <BookOpen className="h-4 w-4" />, label: 'Overview', tabIndex: 0 },
-    { icon: <Lock className="h-4 w-4" />, label: 'Authentication', tabIndex: 1 },
-    { icon: <PanelLeft className="h-4 w-4" />, label: 'Embedding', tabIndex: 2 },
+    { icon: <BookOpen className="h-4 w-4" />, label: 'Overview', route: '/' },
+    { icon: <Lock className="h-4 w-4" />, label: 'Authentication', route: 'authentication' },
+    { icon: <PanelLeft className="h-4 w-4" />, label: 'Embedding', route: 'embedding' },
     { 
       icon: <Code className="h-4 w-4" />, 
       label: 'API Reference', 
-      tabIndex: 3,
+      route: 'api-reference',
       disabled: !apiReferenceEnabled,
       badge: !apiReferenceEnabled ? <ComingSoonBadge /> : undefined
     },
     { 
       icon: <Webhook className="h-4 w-4" />, 
       label: 'Webhooks', 
-      tabIndex: 4, 
+      route: 'webhooks', 
       disabled: true,
       badge: <ComingSoonBadge />
     },
@@ -149,8 +149,8 @@ export function DeveloperSidebar() {
                     key={item.label}
                     icon={item.icon}
                     label={item.label}
-                    isActive={activeTab === item.tabIndex}
-                    onClick={() => !item.disabled && setActiveTab(item.tabIndex)}
+                    isActive={activeRoute === item.route}
+                    onClick={() => !item.disabled && navigateTo(item.route)}
                     disabled={item.disabled}
                     badge={item.badge}
                   />
